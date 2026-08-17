@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+
+# virtualenv — ครอบทุกชื่อที่คนมักตั้ง
+.venv/
+venv/
+env/
+ENV/
+source/
+
+.env
+.chroma/
+data/
+*.log
+
+# เครื่องมือ dev ส่วนตัว ไม่ส่งขึ้น repo
+agent/scripts/
+
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,47 @@
+services:
+  mock-api:
+    build: ./mock-api
+    container_name: tvi-mock-api
+    ports:
+      - "8080:8080"
+    environment:
+      MOCK_API_TOKEN: ${MOCK_API_TOKEN:-techcorp-mock-token-2025}
+    healthcheck:
+      # agent ต้องรอจน service ตอบได้จริง ไม่ใช่แค่ container start
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  agent:
+    build:
+      context: ./agent
+      args:
+        EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+    container_name: tvi-agent
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      MOCK_API_BASE_URL: http://mock-api:8080/api
+      CHROMA_PERSIST_DIR: /data/chroma
+      KNOWLEDGE_BASE_DIR: /knowledge-base
+    volumes:
+      # mount แทน COPY เพื่อให้แก้เอกสารแล้วไม่ต้อง rebuild image
+      - ./knowledge-base:/knowledge-base:ro
+      - chroma-data:/data/chroma
+    depends_on:
+      mock-api:
+        condition: service_healthy
+    healthcheck:
+      # start_period ยาวเพราะ ingest ครั้งแรกใช้เวลา 30-60 วินาที
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:3000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  chroma-data:

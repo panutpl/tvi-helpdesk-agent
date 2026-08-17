@@ -1,0 +1,15 @@
+# build context ถูกส่งเข้า daemon ทั้งหมดก่อน build
+# .venv มี torch อยู่ข้างในหลาย GB ถ้าไม่ตัดออก build จะช้ามาก
+.venv/
+venv/
+env/
+ENV/
+
+__pycache__/
+*.py[cod]
+
+.chroma/
+scripts/
+.env
+*.log
+.DS_Store
